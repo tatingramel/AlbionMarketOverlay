@@ -1,0 +1,2 @@
+Download items.txt from the ao-bin-dumps repo (formatted/items.txt) and save it in this folder as: items.txt
+Without it, search by item name will not work (you can still type an exact item ID such as T4_BAG).
