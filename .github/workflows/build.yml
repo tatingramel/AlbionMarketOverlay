@@ -1,0 +1,36 @@
+name: Build APK
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Fetch items.txt for name search (skipped if already in repo)
+        run: |
+          F=app/src/main/assets/items.txt
+          if [ ! -s "$F" ]; then
+            curl -fL --retry 3 -o "$F" https://raw.githubusercontent.com/ao-data/ao-bin-dumps/master/formatted/items.txt || echo "::warning::items.txt download failed - name search will not work"
+            [ -s "$F" ] || rm -f "$F"
+          fi
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.7
+
+      - name: Build debug APK
+        run: gradle assembleDebug --no-daemon --stacktrace
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AlbionOverlay-debug
+          path: app/build/outputs/apk/debug/*.apk
